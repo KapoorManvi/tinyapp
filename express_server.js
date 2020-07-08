@@ -30,6 +30,11 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+//A GET route to show the form that allows user to enter a URL to be shortened
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
 app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
