@@ -52,5 +52,14 @@ app.get("/urls/:shortURL", (req, res) => {
 //A POST request to accept the user input from the URL shortener form
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
+  const shortURL = generateRandomString();
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL; // shortURL-longURL key-value pair are saved to the urlDatabase when it receives a POST request to /urls
+  res.redirect(`/urls/${shortURL}`); // generates short url random string
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
 });
