@@ -12,18 +12,18 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-// const users = { 
-//   "userRandomID": {
-//     id: "userRandomID", 
-//     email: "user@example.com", 
-//     password: "purple-monkey-dinosaur"
-//   },
-//  "user2RandomID": {
-//     id: "user2RandomID", 
-//     email: "user2@example.com", 
-//     password: "dishwasher-funk"
-//   }
-// };
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+};
 
 function generateRandomString() {
   let randString = Math.random().toString(36).substr(2, 6);
@@ -48,6 +48,7 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// Displays the URLS page with the list of shortened URLs for a given user 
 app.get("/urls", (req, res) => {
   console.log("req.cookies: ", req.cookies);
   const userId = req.cookies.user_id;
@@ -108,11 +109,38 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect("/urls");
 });
 
-// Accepts username input and shows user as logged in
+// Accepts email and password input on the login page, compares them to stored values for a match and places cookie if there is a match
 app.post("/login", (req, res) => {
+  let email = req.body.email;
+  let password = req.body.password;
+
+  if (!checkExistingEmail(email)) {
+    res.status(403).send('<h1>403 Error</h1> <p>Shoot, it looks like that email is not registered. Check for typos and try again.</p>');
+  } else if (checkExistingEmail(email) && checkExistingPassword(password)) {
+    
+    const userId = getIdByEmail(email);
+    res.cookie('user_id', userId); 
+    
+
+
+    res.redirect("/urls");
+
+
+
+  } else {
+    res.status(403).send('<h1>403 Error</h1> <p>Uh, did you forget something...? The password and email do not match.</p>');
+  }
   
-  res.cookie('user_id', req.body.username);
-  res.redirect("/urls");
+});
+
+//Displays the login page
+app.get("/login", (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  let templateVars = {
+    user: user,
+  };
+  res.render("urls_login", templateVars);
 });
 
 // Completes logout and clears username
@@ -132,31 +160,55 @@ app.get("/register", (req, res) => {
   res.render("urls_reg", templateVars);
 });
 
-const users = { 
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  }
-};
-
+// Receives submitted registration form, checks if the email submitted already exists as a registered account & generates a new user ID
 app.post("/register", (req, res) => {
-    // generate an id
-    const userId = generateRandomString();
-    // create a new user object => value associated with the id
-    const newUser = {
-      id: userId,
-      email: req.body.email,
-      password: req.body.password
-    };
-    // add new user object to the users db
-    users[userId] = newUser;
-    res.cookie('user_id', userId);
-    res.redirect("/urls");
+    let email = req.body.email;
+    let password = req.body.password;
+
+    if (email === "" || password === "") {
+      res.status(400).send('<h1>400 Error</h1> <p>Uh, did you forget something...? Password and email fields cannot be blank.</p>');
+    } else if (checkExistingEmail(email)) {
+      res.status(400).send('<h1>400 Error</h1> <p>Uh oh, this email is already registered. Pick a different one and try again. </p>');
+    } else {
+      // generate an id
+      const userId = generateRandomString();
+      // create a new user object => value associated with the id
+      const newUser = {
+        id: userId,
+        email: req.body.email,
+        password: req.body.password
+      };
+      // add new user object to the users db
+      users[userId] = newUser;
+      res.cookie('user_id', userId);
+      res.redirect("/urls");
+    }
 });
 
+// Checks if an input email from registration or login page is already in the users database
+function checkExistingEmail(inputEmail) {
+  for (id in users) {
+    if (users[id]['email'] === inputEmail) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Checks if an input password from login page is already in the users database
+function checkExistingPassword(inputPw) {
+  for (id in users) {
+    if (users[id]['password'] === inputPw) { // Did I set the if statement right?
+      return true;
+    }
+  }
+  return false;
+}
+
+function getIdByEmail(inputEmail) {
+  for (id in users) {
+    if (users[id]['email'] === inputEmail) {
+      return id;
+    }
+  }
+}

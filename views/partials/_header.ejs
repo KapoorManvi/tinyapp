@@ -12,11 +12,9 @@
       </div>
     </div>
     <% if (!user) { %>
-      <form class="formClass" action="/login" method="POST"> 
-            <input type="text" id="username" name="username" placeholder="username">
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </form>
-
+      <a style="color:rgb(255, 203, 30)" href="/login" action="/login" method="POST">Login</a>
+      <span>&nbsp; or &nbsp;</span> 
+      <a style="color:rgb(255, 203, 30)" href="/register" action="/login" method="POST">Register</a>
    <% } else { %>
     <span>Logged in as: <%= user.email %> &nbsp;</span> 
     <form class="formClass" action="/logout" method="POST"> 
