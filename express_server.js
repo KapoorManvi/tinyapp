@@ -3,6 +3,8 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
+
 
 app.set("view engine", "ejs");
 app.use(cookieParser());
@@ -16,12 +18,12 @@ const users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    password: bcrypt.hashSync("purple-monkey-dinosaur", 10)
   },
  "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
-    password: "dishwasher-funk"
+    password: bcrypt.hashSync("dishwasher-funk", 10)
   }
 };
 
@@ -51,6 +53,7 @@ app.get("/hello", (req, res) => {
 // Displays the URLS page with the list of shortened URLs for a given user 
 app.get("/urls", (req, res) => {
   console.log("req.cookies: ", req.cookies);
+  console.log("USERS DB: ", users);
   const userId = req.cookies.user_id;
   const user = users[userId];
   let urlsForLoggedInUser = {};
@@ -209,7 +212,7 @@ app.post("/register", (req, res) => {
       const newUser = {
         id: userId,
         email: req.body.email,
-        password: req.body.password
+        password: bcrypt.hashSync(password, 10),
       };
       // add new user object to the users db
       users[userId] = newUser;
@@ -231,7 +234,7 @@ function checkExistingEmail(inputEmail) {
 // Checks if an input password from login page is already in the users database
 function checkExistingPassword(inputPw) {
   for (id in users) {
-    if (users[id]['password'] === inputPw) { // Did I set the if statement right?
+    if (bcrypt.compareSync(inputPw, users[id]['password'])) { 
       return true;
     }
   }
