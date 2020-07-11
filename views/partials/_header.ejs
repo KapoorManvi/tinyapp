@@ -11,14 +11,17 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+
+    <!-- IF USER NOT LOGGED IN, DISPLAY "LOGIN" & "REGISTER" LINKS -->
     <% if (!user) { %>
-      <a style="color:rgb(255, 203, 30)" href="/login" action="/login" method="POST">Login</a>
+      <a style="color:rgb(30, 94, 255)" href="/login" action="/login" method="POST">Login</a>
       <span>&nbsp; or &nbsp;</span> 
-      <a style="color:rgb(255, 203, 30)" href="/register" action="/login" method="POST">Register</a>
+      <a style="color:rgb(30, 94, 255)" href="/register" action="/login" method="POST">Register</a>
    <% } else { %>
+    <!-- IF USER LOGGED IN, DISPLAY USER'S EMAIL -->
     <span>Logged in as: <%= user.email %> &nbsp;</span> 
     <form class="formClass" action="/logout" method="POST"> 
-      <button type="submit" class="btn btn-primary">Logout</button>
+      <button style="background-color:crimson" type="submit" class="btn btn-primary">Logout</button>
     </form>
     <% } %>
   </nav>
